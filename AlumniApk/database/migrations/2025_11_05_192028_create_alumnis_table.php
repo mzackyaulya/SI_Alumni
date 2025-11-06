@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('alumnis', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('nis')->unique();
             $table->string('nisn')->unique();
             $table->string('nama');
             $table->string('email')->unique();
@@ -23,6 +24,7 @@ return new class extends Migration
             $table->string('pekerjaan')->nullable();
             $table->string('perusahaan')->nullable();
             $table->string('alamat')->nullable();
+            $table->string('tempat_lahir')->nullable();
             $table->date('tanggal_lahir')->nullable();
             $table->string('foto')->nullable();
             $table->timestamps();

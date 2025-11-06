@@ -800,6 +800,19 @@ p {
   bottom: 0;
 }
 
+.dropdown-menu .dropdown-item {
+  padding: 0.4rem 0.8rem;   /* default Bootstrap sekitar 0.5–1rem, ini lebih kecil */
+  border-radius: 6px;       /* agar efek hover lebih lembut */
+}
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: rgba(0, 123, 255, 0.1);  /* efek hover tipis */
+}
+
+.dropdown-menu-alumni .dropdown-item {
+  padding: 0.35rem 0.8rem;
+}
+
 /* =============================
     FEATURE-5 CSS
 ================================ */

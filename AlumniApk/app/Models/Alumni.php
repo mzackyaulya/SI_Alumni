@@ -13,7 +13,9 @@ class Alumni extends Model
     public $incrementing = false;
 
     protected $fillable = [
+        'id',
         'user_id',
+        'nis',
         'nisn',
         'nama',
         'email',
@@ -23,6 +25,7 @@ class Alumni extends Model
         'pekerjaan',
         'perusahaan',
         'alamat',
+        'tempat_lahir',
         'tanggal_lahir',
         'foto',
     ];
