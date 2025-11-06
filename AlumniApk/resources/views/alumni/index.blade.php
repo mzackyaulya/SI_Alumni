@@ -1,11 +1,11 @@
 @extends('layout.main')
 
-@section('title','Data Akun Alumni')
+@section('title','Data Alumni')
 
 @section('content')
 <div class="container py-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="mb-0 fw-bold">Data Akun Alumni</h4>
+    <h4 class="mb-0 fw-bold">Data  Alumni</h4>
     <a href="{{ route('alumni.create') }}" class="btn btn-primary">
       + Tambah Alumni
     </a>
@@ -28,6 +28,7 @@
             <tr>
               <th style="width: 5%">No</th>
               <th>Nama</th>
+              <th>Email</th>
               <th>No. HP</th>
               <th>Role</th>
               <th style="width: 18%">Aksi</th>
@@ -38,6 +39,7 @@
               <tr>
                 <td>{{ $alumni->firstItem() + $index }}</td>
                 <td>{{ $a->nama }}</td>
+                <td>{{ $a->email }}</td>
                 <td>{{ $a->phone ?? '-' }}</td>
                 <td>
                   <span class="badge bg-info text-dark text-uppercase">{{ $a->user->role ?? 'alumni' }}</span>

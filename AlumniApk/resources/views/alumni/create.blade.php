@@ -86,16 +86,25 @@
               @error('tanggal_lahir') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
 
+            {{-- Tambahan Password --}}
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" name="password" class="form-control @error('password') is-invalid @enderror" required>
+                @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
+                <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" required>
+              </div>
+            </div>
+
             <div class="d-flex justify-content-between">
               <a href="{{ route('alumni.index') }}" class="btn btn-light">Kembali</a>
-              <button type="submit" class="btn btn-primary">Simpan Data</button>
+              <button type="submit" class="btn btn-primary">Simpan</button>
             </div>
           </form>
-
-          <div class="mt-3 small text-muted">
-            Sistem akan membuat akun <strong>role = alumni</strong> dan mengirim
-            <em>link setel password</em> ke email alumni secara otomatis.
-          </div>
         </div>
       </div>
     </div>
