@@ -48,7 +48,7 @@
                             <th>Email</th>
                             <th>No. HP</th>
                             <th>Role</th>
-                            <th style="width: 18%">Aksi</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>

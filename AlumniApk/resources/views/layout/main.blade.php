@@ -149,7 +149,7 @@
                                                             {{-- hanya aktif untuk halaman biodata --}}
                                                             <a class="dropdown-item {{ request()->routeIs('alumni.biodata') ? 'active' : '' }}"
                                                                 href="{{ route('alumni.biodata') }}">
-                                                                <i class="fa-solid fa-id-card me-2"></i> Biodata
+                                                                <i class="fa-solid fa-id-card me-2"></i> Biodata Alumni
                                                             </a>
                                                         </li>
 
@@ -164,6 +164,48 @@
                                                 </li>
                                             @endauth
                                             {{--  end Menu Alumni  --}}
+
+                                            {{--Start Menu Perusahaan --}}
+                                            @guest
+                                                {{-- Jika belum login, langsung arahkan ke biodata --}}
+                                                <li class="nav-item">
+                                                    <a class="nav-link"{{--  <a class="nav-link {{ request()->routeIs('alumni.biodata') ? 'active' : '' }}"  --}}
+                                                    href="#"> {{--  href="{{ route('perusahaan.biodata') }}">  --}}
+                                                        Perusahaan
+                                                    </a>
+                                                </li>
+                                            @endguest
+
+                                            @auth
+                                                {{-- Jika sudah login, tampilkan dropdown --}}
+                                                <li class="nav-item dropdown">
+                                                    <a class="nav-link dropdown-toggle"
+                                                        href="#" id="navPerusahaanDropdown" role="button"
+                                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                                        Perusahaan
+                                                    </a>
+
+                                                    <ul class="dropdown-menu dropdown-menu-alumni" aria-labelledby="navPerusahaanDropdown" style="min-width: 300px;">
+                                                        <li>
+                                                        {{-- hanya aktif untuk halaman index/create/edit/show perusahaan --}}
+                                                            <a class="dropdown-item
+                                                                {{ request()->routeIs('perusahaan.index','perusahaan.create','perusahaan.edit','perusahaan.show') ? 'active' : '' }}"
+                                                                href="{{ route('perusahaan.index') }}">
+                                                                <i class="fa-solid fa-users me-2"></i> Data Perusahaan
+                                                            </a>
+                                                        </li>
+
+                                                        <li class="mt-1">
+                                                            {{-- hanya aktif untuk halaman biodata --}}
+                                                            <a class="dropdown-item {{ request()->routeIs('alumni.biodata') ? 'active' : '' }}"
+                                                                href="#">
+                                                                <i class="fa-solid fa-id-card me-2"></i> Biodata Perusahaan
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            @endauth
+                                            {{--  end Menu Perusahaan  --}}
 
                                             <li class="nav-item">
                                                 <a class="page-scroll" href="#">Event</a>

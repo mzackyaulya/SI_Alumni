@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AlumniController;
+use App\Http\Controllers\PerusahaanController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +31,7 @@ Route::middleware(['auth','role:admin'])->group(function () {
     Route::delete('/alumni/{alumni}',   [AlumniController::class, 'destroy'])->name('alumni.destroy');
 });
 
+
 Route::middleware(['auth','role:admin,alumni'])->group(function () {
     Route::get('/alumni', [AlumniController::class, 'index'])->name('alumni.index');
     Route::get('/alumni/{alumni}', [AlumniController::class, 'show'])->name('alumni.show');
@@ -38,4 +40,27 @@ Route::middleware(['auth','role:admin,alumni'])->group(function () {
 });
 
 // End Router Alumni
+
+Route::middleware(['auth','role:admin'])->group(function () {
+    Route::get('/perusahaan/create',        [PerusahaanController::class, 'create'])->name('perusahaan.create');
+    Route::post('/perusahaan',              [PerusahaanController::class, 'store'])->name('perusahaan.store');
+    Route::get('/perusahaan/{perusahaan}/edit', [PerusahaanController::class, 'edit'])->name('perusahaan.edit');
+    Route::put('/perusahaan/{perusahaan}',      [PerusahaanController::class, 'update'])->name('perusahaan.update');
+    Route::delete('/perusahaan/{perusahaan}',   [PerusahaanController::class, 'destroy'])->name('perusahaan.destroy');
+    Route::get('/perusahaan', [PerusahaanController::class, 'index'])->name('perusahaan.index');
+    Route::get('/perusahaan/{perusahaan}', [PerusahaanController::class, 'show'])->name('perusahaan.show');
+    Route::patch('/perusahaan/{perusahaan}/verify', [PerusahaanController::class, 'verifyToggle'])->name('perusahaan.verify');
+});
+
+Route::middleware(['auth','role:admin,company'])->group(function () {
+    Route::get('/perusahaan/{perusahaan}/edit', [PerusahaanController::class, 'edit'])->name('perusahaan.edit');
+    Route::put('/perusahaan/{perusahaan}',      [PerusahaanController::class, 'update'])->name('perusahaan.update');
+    Route::get('/perusahaan', [PerusahaanController::class, 'index'])->name('perusahaan.index');
+    Route::patch('/perusahaan/{perusahaan}/verify', [PerusahaanController::class, 'verifyToggle'])->name('perusahaan.verify');
+});
+
+Route::middleware('auth')->get('/biodata/perusahaan/{perusahaan}', [PerusahaanController::class, 'biodataShow'])
+    ->name('perusahaan.biodata.show');
+
+
 require __DIR__.'/auth.php';
