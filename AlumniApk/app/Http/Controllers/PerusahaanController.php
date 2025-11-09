@@ -7,7 +7,6 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -16,17 +15,45 @@ class PerusahaanController extends Controller
     /* =========================================================
      |  BIODATA (ringkas) — bisa diakses semua role saat login
      |=========================================================*/
+    public function biodataIndex(Request $r)
+    {
+        $q        = trim((string) $r->get('q', ''));
+        $industri = trim((string) $r->get('industri', ''));
+        $kota     = trim((string) $r->get('kota', ''));
+
+        $perusahaans = Perusahaan::query()
+            ->when($q !== '', function ($x) use ($q) {
+                $x->where(function ($w) use ($q) {
+                    $w->where('nama', 'like', "%{$q}%")
+                    ->orWhere('industri', 'like', "%{$q}%")
+                    ->orWhere('kota', 'like', "%{$q}%");
+                });
+            })
+            ->when($industri !== '', fn($x) => $x->where('industri', 'like', "%{$industri}%"))
+            ->when($kota !== '', fn($x) => $x->where('kota', 'like', "%{$kota}%"))
+            ->latest()
+            ->paginate(12)
+            ->withQueryString();
+
+        return view('perusahaan.biodata_index', compact('perusahaans', 'q', 'industri', 'kota'));
+    }
+
     public function biodataShow(Perusahaan $perusahaan)
     {
+        // ini view detail (yang sudah kamu buat sebelumnya: perusahaan/biodata.blade.php)
         return view('perusahaan.biodata', compact('perusahaan'));
     }
 
     /* =========================================================
      |  SHOW (internal lengkap) — hanya admin/owner
      |=========================================================*/
-    public function show(Perusahaan $perusahaan)
+    public function show(Request $request,Perusahaan $perusahaan)
     {
-        $this->authorize('viewInternal', $perusahaan);
+        $user = $request->user();
+        if (! ($user?->role === 'admin' || $user?->id === $perusahaan->user_id)) {
+            abort(403, 'Anda tidak berhak mengakses halaman ini.');
+        }
+
         return view('perusahaan.show', compact('perusahaan'));
     }
 

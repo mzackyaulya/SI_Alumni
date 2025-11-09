@@ -41,6 +41,16 @@ Route::middleware(['auth','role:admin,alumni'])->group(function () {
 
 // End Router Alumni
 
+Route::middleware(['auth'])->group(function () {
+    // daftar semua biodata perusahaan (grid) — bisa dilihat semua role yang login
+    Route::get('/perusahaan/biodata', [PerusahaanController::class, 'biodataIndex'])
+        ->name('perusahaan.biodata.index');
+
+    // (opsional) detail satu perusahaan dari halaman biodata
+    Route::get('/perusahaan/biodata/{perusahaan}', [PerusahaanController::class, 'biodataShow'])
+        ->name('perusahaan.biodata.show');
+});
+
 Route::middleware(['auth','role:admin'])->group(function () {
     Route::get('/perusahaan/create',        [PerusahaanController::class, 'create'])->name('perusahaan.create');
     Route::post('/perusahaan',              [PerusahaanController::class, 'store'])->name('perusahaan.store');
@@ -59,8 +69,6 @@ Route::middleware(['auth','role:admin,company'])->group(function () {
     Route::patch('/perusahaan/{perusahaan}/verify', [PerusahaanController::class, 'verifyToggle'])->name('perusahaan.verify');
 });
 
-Route::middleware('auth')->get('/biodata/perusahaan/{perusahaan}', [PerusahaanController::class, 'biodataShow'])
-    ->name('perusahaan.biodata.show');
 
 
 require __DIR__.'/auth.php';
