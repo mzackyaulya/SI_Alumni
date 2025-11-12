@@ -210,7 +210,7 @@
             <div class="d-flex justify-content-end gap-2">
               <a href="{{ route('perusahaan.index') }}" class="btn btn-light">Batal</a>
               <button type="submit" class="btn btn-primary">
-                <i class="fa-solid fa-floppy-disk me-1"></i> Simpan Perubahan
+                <i class="fa-solid fa-floppy-disk me-1"></i> Simpan
               </button>
             </div>
           </form>

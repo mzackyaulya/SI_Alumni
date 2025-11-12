@@ -38,11 +38,10 @@ class Perusahaan extends Model
         return $this->belongsTo(User::class);
     }
 
-    // Satu perusahaan punya banyak job
-    // public function jobs()
-    // {
-    //     return $this->hasMany(Job::class, 'perusahaan_id'); // fk di tabel jobs
-    // }
+    public function lowongans()
+    {
+        return $this->hasMany(Lowongan::class);
+    }
 
     /* ================= Scope Filter ================= */
 

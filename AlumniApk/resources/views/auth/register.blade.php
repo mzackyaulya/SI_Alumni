@@ -39,37 +39,42 @@
               @error('phone') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
 
-            {{-- Role --}}
-            <div class="mb-3">
-              <label for="role" class="form-label">Daftar sebagai</label>
-              <select id="role" name="role"
-                      class="form-select @error('role') is-invalid @enderror" required>
-                <option value="" disabled {{ old('role') ? '' : 'selected' }}>Pilih role</option>
-                <option value="alumni" {{ old('role')=='alumni'?'selected':'' }}>Alumni</option>
-                <option value="perusahaan" {{ old('role')=='perusahaan'?'selected':'' }}>Perusahaan</option>
-                <option value="waka_siswa" {{ old('role')=='waka_siswa'?'selected':'' }}>Waka Siswa</option>
-              </select>
-              @error('role') <div class="invalid-feedback">{{ $message }}</div> @enderror
-            </div>
-
             {{-- Password --}}
             <div class="mb-3">
-              <label for="password" class="form-label">Password</label>
-              <input id="password" type="password" name="password"
-                     class="form-control @error('password') is-invalid @enderror"
-                     required autocomplete="new-password">
-              @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group">
+                    <input id="password" type="password" name="password"
+                        class="form-control @error('password') is-invalid @enderror"
+                        required autocomplete="new-password">
+                    <button type="button"
+                            class="btn btn-outline-secondary toggle-password"
+                            data-target="#password"
+                            aria-label="Tampilkan/Sembunyikan password">
+                    <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
+            @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
             </div>
+
 
             {{-- Konfirmasi Password --}}
             <div class="mb-4">
-              <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
-              <input id="password_confirmation" type="password" name="password_confirmation"
-                     class="form-control" required autocomplete="new-password">
+                <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
+                <div class="input-group">
+                    <input id="password_confirmation" type="password" name="password_confirmation"
+                        class="form-control" required autocomplete="new-password">
+                    <button type="button"
+                            class="btn btn-outline-secondary toggle-password"
+                            data-target="#password_confirmation"
+                            aria-label="Tampilkan/Sembunyikan password">
+                    <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
             </div>
 
+
             <div class="d-grid">
-              <button type="submit" class="btn btn-primary btn-lg">Daftar Sekarang</button>
+              <button type="submit" class="btn btn-primary btn-lg">Daftar</button>
             </div>
 
             <p class="text-center mt-3 mb-0 small">
@@ -81,4 +86,27 @@
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.toggle-password').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const targetSelector = btn.getAttribute('data-target');
+      const input = document.querySelector(targetSelector);
+      if (!input) return;
+
+      const isHidden = input.type === 'password';
+      input.type = isHidden ? 'text' : 'password';
+
+      const icon = btn.querySelector('i');
+      if (icon) {
+        // toggle icon eye / eye-slash (Font Awesome)
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+      }
+    });
+  });
+});
+</script>
+
 @endsection

@@ -13,21 +13,16 @@ class Alumni extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'id',
         'user_id',
-        'nis',
-        'nisn',
-        'nama',
-        'email',
-        'phone',
-        'angkatan',
-        'jurusan',
-        'pekerjaan',
-        'perusahaan',
-        'alamat',
-        'tempat_lahir',
-        'tanggal_lahir',
+        'nis', 'nisn', 'nama', 'email', 'phone',
+        'jenis_kelamin', 'nama_ortu', 'sttp',
+        'angkatan', 'jurusan', 'pekerjaan', 'perusahaan',
+        'alamat', 'tempat_lahir', 'tanggal_lahir',
         'foto',
+    ];
+
+    protected $casts = [
+        'tanggal_lahir' => 'date', // atau 'immutable_date'
     ];
 
     protected static function booted()
@@ -43,4 +38,10 @@ class Alumni extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function lamarans()
+    {
+        return $this->hasMany(Lamaran::class);
+    }
+
 }

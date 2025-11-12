@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 
 class AlumniController extends Controller
 {
@@ -50,40 +50,43 @@ class AlumniController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'nis'            => ['required', 'string', 'max:30', 'unique:alumnis,nis'],
-            'nisn'           => ['required', 'string', 'max:30', 'unique:alumnis,nisn'],
-            'nama'           => ['required', 'string', 'max:255'],
-            'email'          => ['required', 'email', 'max:255', 'unique:alumnis,email', 'unique:users,email'],
-            'phone'          => ['nullable', 'string', 'max:20', 'unique:users,phone'],
-            'angkatan'       => ['nullable', 'string', 'max:10'],
-            'jurusan'        => ['nullable', 'string', 'max:100'],
-            'pekerjaan'      => ['nullable', 'string', 'max:100'],
-            'perusahaan'     => ['nullable', 'string', 'max:100'],
-            'alamat'         => ['nullable', 'string', 'max:255'],
-            'tempat_lahir'   => ['nullable', 'string', 'max:100'],
-            'tanggal_lahir'  => ['nullable', 'date'],
-            'foto'           => ['nullable', 'image', 'max:2048'],
-            'password'       => ['required', 'string', 'min:8', 'confirmed'],
+            'nis'           => ['required','string','max:30','unique:alumnis,nis'],
+            'nisn'          => ['required','string','max:30','unique:alumnis,nisn'],
+            'nama'          => ['required','string','max:255'],
+            'email'         => ['required','email','max:255','unique:alumnis,email','unique:users,email'],
+            'phone'         => ['nullable','string','max:20','unique:users,phone'],
+            'jenis_kelamin' => ['nullable', Rule::in(['L','P'])],
+            'nama_ortu'     => ['nullable','string','max:255'],
+            'sttp'          => ['nullable','string','max:100'],
+            'angkatan'      => ['nullable','string','max:10'],
+            'jurusan'       => ['nullable','string','max:100'],
+            'pekerjaan'     => ['nullable','string','max:100'],
+            'perusahaan'    => ['nullable','string','max:150'],
+            'alamat'        => ['nullable','string','max:255'],
+            'tempat_lahir'  => ['nullable','string','max:100'],
+            'tanggal_lahir' => ['nullable','date'],
+            'foto'          => ['nullable','image','max:2048'],
+            'password'      => ['required','string','min:8','confirmed'],
         ]);
 
-        DB::transaction(function () use ($data, $request) {
-            // 1) Buat akun user role=alumni
+        DB::transaction(function () use ($request, $data) {
+            // 1) buat user role alumni
             $user = User::create([
-                'name'              => $data['nama'],
-                'email'             => $data['email'],
-                'phone'             => $data['phone'] ?? null,
-                'role'              => 'alumni',
-                'password'          => Hash::make($data['password']),
+                'name'     => $data['nama'],
+                'email'    => $data['email'],
+                'phone'    => $data['phone'] ?? null,
+                'role'     => 'alumni',
+                'password' => Hash::make($data['password']),
                 'email_verified_at' => now(), // opsional
             ]);
 
-            // 2) Upload foto jika ada
+            // 2) simpan foto (jika ada)
             $fotoPath = null;
             if ($request->hasFile('foto')) {
                 $fotoPath = $request->file('foto')->store('alumni_foto', 'public');
             }
 
-            // 3) Buat data alumni
+            // 3) buat data alumni
             Alumni::create([
                 'user_id'       => $user->id,
                 'nis'           => $data['nis'],
@@ -91,6 +94,9 @@ class AlumniController extends Controller
                 'nama'          => $data['nama'],
                 'email'         => $data['email'],
                 'phone'         => $data['phone'] ?? null,
+                'jenis_kelamin' => $data['jenis_kelamin'] ?? null,
+                'nama_ortu'     => $data['nama_ortu'] ?? null,
+                'sttp'          => $data['sttp'] ?? null,
                 'angkatan'      => $data['angkatan'] ?? null,
                 'jurusan'       => $data['jurusan'] ?? null,
                 'pekerjaan'     => $data['pekerjaan'] ?? null,
@@ -100,9 +106,6 @@ class AlumniController extends Controller
                 'tanggal_lahir' => $data['tanggal_lahir'] ?? null,
                 'foto'          => $fotoPath,
             ]);
-
-            // 4) (opsional) kirim link setel ulang password
-            Password::sendResetLink(['email' => $user->email]);
         });
 
         return redirect()->route('alumni.index')->with('success', 'Alumni berhasil ditambahkan.');
@@ -111,43 +114,54 @@ class AlumniController extends Controller
     public function show(Alumni $alumni)
     {
         $alumni->load('user');
+        if (Auth::user()->role === 'alumni' && $alumni->user_id !== Auth::id()) {
+            abort(403);
+        }
         return view('alumni.show', compact('alumni'));
     }
 
     public function edit(Alumni $alumni)
     {
         $alumni->load('user');
+        if (Auth::user()->role === 'alumni' && $alumni->user_id !== Auth::id()) {
+            abort(403);
+        }
         return view('alumni.edit', compact('alumni'));
     }
 
     public function update(Request $request, Alumni $alumni)
     {
+        if (Auth::user()->role === 'alumni' && $alumni->user_id !== Auth::id()) {
+            abort(403);
+        }
+
         $data = $request->validate([
-            'nis'            => ['required', 'string', 'max:30', Rule::unique('alumnis', 'nis')->ignore($alumni->id, 'id')],
-            'nisn'           => ['required', 'string', 'max:30', Rule::unique('alumnis', 'nisn')->ignore($alumni->id, 'id')],
-            'nama'           => ['required', 'string', 'max:255'],
-            'email'          => ['required', 'email', 'max:255',
-                Rule::unique('alumnis', 'email')->ignore($alumni->id, 'id'),
-                Rule::unique('users', 'email')->ignore($alumni->user_id, 'id'),
+            'nis'   => ['required','string','max:30', Rule::unique('alumnis','nis')->ignore($alumni->id, 'id')],
+            'nisn'  => ['required','string','max:30', Rule::unique('alumnis','nisn')->ignore($alumni->id, 'id')],
+            'nama'  => ['required','string','max:255'],
+            'email' => ['required','email','max:255',
+                Rule::unique('alumnis','email')->ignore($alumni->id, 'id'),
+                Rule::unique('users','email')->ignore($alumni->user_id, 'id'),
             ],
-            'phone'          => ['nullable', 'string', 'max:20',
-                Rule::unique('users', 'phone')->ignore($alumni->user_id, 'id'),
+            'phone' => ['nullable','string','max:20',
+                Rule::unique('users','phone')->ignore($alumni->user_id, 'id'),
             ],
-            'angkatan'       => ['nullable', 'string', 'max:10'],
-            'jurusan'        => ['nullable', 'string', 'max:100'],
-            'pekerjaan'      => ['nullable', 'string', 'max:100'],
-            'perusahaan'     => ['nullable', 'string', 'max:100'],
-            'alamat'         => ['nullable', 'string', 'max:255'],
-            'tempat_lahir'   => ['nullable', 'string', 'max:100'],
-            'tanggal_lahir'  => ['nullable', 'date'],
-            'foto'           => ['nullable', 'image', 'max:2048'],
+            'jenis_kelamin' => ['nullable', Rule::in(['L','P'])],
+            'nama_ortu'     => ['nullable','string','max:255'],
+            'sttp'          => ['nullable','string','max:100'],
+            'angkatan'      => ['nullable','string','max:10'],
+            'jurusan'       => ['nullable','string','max:100'],
+            'pekerjaan'     => ['nullable','string','max:100'],
+            'perusahaan'    => ['nullable','string','max:150'],
+            'alamat'        => ['nullable','string','max:255'],
+            'tempat_lahir'  => ['nullable','string','max:100'],
+            'tanggal_lahir' => ['nullable','date'],
+            'foto'          => ['nullable','image','max:2048'],
         ]);
 
-        DB::transaction(function () use ($alumni, $data, $request) {
-            // update alumni
+        DB::transaction(function () use ($request, $alumni, $data) {
             $update = $data;
 
-            // handle foto baru
             if ($request->hasFile('foto')) {
                 if ($alumni->foto && Storage::disk('public')->exists($alumni->foto)) {
                     Storage::disk('public')->delete($alumni->foto);
@@ -157,7 +171,7 @@ class AlumniController extends Controller
 
             $alumni->update($update);
 
-            // sinkron sebagian ke user
+            // sinkron sebagian field ke users
             if ($alumni->user) {
                 $alumni->user->update([
                     'name'  => $alumni->nama,
@@ -167,7 +181,21 @@ class AlumniController extends Controller
             }
         });
 
-        return redirect()->route('alumni.index')->with('success', 'Data alumni berhasil diperbarui.');
+        // Ambil URL tujuan dari form (fallback ke index)
+        $returnUrl = $request->input('return_url', route('alumni.index'));
+
+        // Hindari open-redirect: pastikan masih di domain sendiri
+        if (! Str::startsWith($returnUrl, url('/'))) {
+            $returnUrl = route('alumni.index');
+        }
+
+        // Kalau URL tujuan ternyata halaman edit sendiri, fallback ke index biar tidak loop
+        if (url()->current() === $returnUrl) {
+            $returnUrl = route('alumni.index');
+        }
+
+        return redirect()->route('alumni.show', $alumni->id)->with('success', 'Data alumni berhasil diperbarui.');
+
     }
 
     public function destroy(Alumni $alumni)

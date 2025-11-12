@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="container py-4">
-        <h4 class="fw-bold mb-4">Biodata Alumni</h4>
+        <h2 class="fw-bold mb-4 text-center">Biodata Alumni</h2>
 
         {{-- Search --}}
         <form method="GET" class="mb-4">
@@ -18,42 +18,49 @@
         {{-- Grid Biodata --}}
         <div class="row g-4">
             @forelse ($alumni as $a)
-            <div class="col-md-4">
-                <div class="card h-100 shadow-sm border border-primary rounded-3">
-                    <div class="text-center mt-3">
-                        @php
-                            $fotoPath = $a->foto
-                            ? Storage::disk('public')->url($a->foto)
-                            : asset('assets/img/profil.jpg');
-                        @endphp
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <div class="card h-100 shadow-sm border border-primary rounded-3">
+                        <div class="text-center mt-3">
+                            @php
+                                $fotoPath = $a->foto
+                                    ? Storage::disk('public')->url($a->foto)
+                                    : asset('assets/img/profil.jpg');
+                            @endphp
 
-                        <img src="{{ $fotoPath }}" alt="{{ $a->nama }}"
-                            class="rounded-circle border border-2 border-primary shadow-sm"
-                            style="width:130px;height:130px;object-fit:cover;">
-                    </div>
+                            <img src="{{ $fotoPath }}" alt="{{ $a->nama }}"
+                                class="rounded-circle border border-2 border-primary shadow-sm"
+                                style="width:130px;height:130px;object-fit:cover;">
+                        </div>
 
-                    <div class="card-body text-center">
-                        <h5 class="card-title fw-semibold mt-2 mb-1">{{ $a->nama }}</h5>
-                        <p class="text-muted small mb-1">{{ $a->email }}</p>
-                        <p class="text-muted small mb-1">{{ $a->tanggal_lahir ?? 'HH/BB/TT' }}</p>
-                        <p class="mb-1">
-                            <i class="fa-solid fa-graduation-cap me-2 text-primary"></i>
-                            {{ $a->jurusan ?? '-' }} ({{ $a->angkatan ?? '-' }})
-                        </p>
-                        <p class="mb-0">
-                            <i class="fa-solid fa-briefcase me-2 text-success"></i>
-                            {{ $a->pekerjaan ?? '-' }}{{ $a->perusahaan ? ' di '.$a->perusahaan : '' }}
-                        </p>
+
+                        <div class="card-body text-center">
+                            <h5 class="card-title fw-semibold mt-2 mb-1">{{ $a->nama }}</h5>
+                            <p class="text-muted small mb-1">{{ $a->email }}</p>
+                            <p class="text-muted small mb-1">
+                                @php
+                                $tgl = $a->tanggal_lahir ? \Illuminate\Support\Carbon::parse($a->tanggal_lahir)->format('d M Y') : '—';
+                                @endphp
+                                {{ $tgl }}
+                            </p>
+                            <p class="mb-1">
+                                <i class="fa-solid fa-graduation-cap me-2 text-primary"></i>
+                                {{ $a->jurusan ?? '—' }} ({{ $a->angkatan ?? '—' }})
+                            </p>
+                            <p class="mb-0">
+                                <i class="fa-solid fa-briefcase me-2 text-success"></i>
+                                {{ $a->pekerjaan ?? '—' }}{{ $a->perusahaan ? ' di '.$a->perusahaan : '' }}
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
             @empty
-            <div class="col-12 text-center py-5 text-muted">
-                <i class="fa-regular fa-circle-xmark fa-2x mb-2"></i><br>
-                Tidak ada data alumni ditemukan.
-            </div>
+                <div class="col-12 text-center py-5 text-muted">
+                    <i class="fa-regular fa-circle-xmark fa-2x mb-2"></i><br>
+                    Tidak ada data alumni ditemukan.
+                </div>
             @endforelse
         </div>
+
 
         <div class="mt-4">
             {{ $alumni->links() }}

@@ -16,6 +16,32 @@
         <link rel="stylesheet" href="{{ url('assets/css/lindy-uikit.css') }}"/>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer" />
         <style>
+            body {
+            background: linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 100%) !important;
+            min-height: 100vh;
+            }
+            /* atur jarak antara navbar (header) dan konten utama */
+            .hero-section.hero-style-5.img-bg.hero-fill {
+            min-height: auto !important;
+            padding-top: 150px !important;  /* jarak vertikal dari navbar ke tabel */
+            padding-bottom: 40px !important; /* biar bawah tetap lega */
+            display: block !important;
+            align-items: flex-start !important;
+            justify-content: flex-start !important;
+            background: linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 100%) !important;
+            }
+
+            /* rapikan kontainer isi */
+            .hero-section .container {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            }
+
+            /* opsional: beri sedikit shadow lembut agar konten lebih menonjol */
+            .card {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            }
+
             /* Reset efek "pil" dari navbar utk item di dalam dropdown */
             .header.header-6 .dropdown-menu .dropdown-item {
             padding: 0.35rem 0.9rem !important;
@@ -87,7 +113,7 @@
         <!-- ========================= hero-section-wrapper-5 start ========================= -->
         <section id="home" class="hero-section-wrapper-5">
             <!-- ========================= header-6 start ========================= -->
-            <header class="header header-6">
+            <header class="header header-6 bg-warning">
                 <div class="navbar-area">
                     <div class="container">
                         <div class="row align-items-center">
@@ -108,10 +134,10 @@
                                                 <a class="page-scroll {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ url('dashboard') }}">Beranda</a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="page-scroll" href="#">Profil Sekolah</a>
+                                                <a class="page-scroll" href="#">Profile Sekolah</a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="page-scroll" href="#">Lowongan Kerja</a>
+                                                <a class="page-scroll {{ request()->routeIs('lowongan') ? 'active' : '' }}" href="{{ url('lowongan') }}">Lowongan Kerja</a>
                                             </li>
                                             {{--Start Menu Alumni --}}
                                             @guest
@@ -136,17 +162,24 @@
                                                     </a>
 
                                                     <ul class="dropdown-menu dropdown-menu-alumni" aria-labelledby="navAlumniDropdown" style="min-width: 300px;">
+                                                        @php
+                                                            $user = Auth::user();
+                                                            $alumniId = optional($user->alumni)->id
+                                                                ?? \App\Models\Alumni::where('user_id', $user->id)->value('id');
+
+                                                            $dataAlumniUrl = ($user && $user->role === 'admin')
+                                                                ? route('alumni.index')
+                                                                : ($alumniId ? route('alumni.show', $alumniId) : route('alumni.biodata'));
+                                                        @endphp
                                                         <li>
-                                                        {{-- hanya aktif untuk halaman index/create/edit/show alumni --}}
                                                             <a class="dropdown-item
                                                                 {{ request()->routeIs('alumni.index','alumni.create','alumni.edit','alumni.show') ? 'active' : '' }}"
-                                                                href="{{ route('alumni.index') }}">
+                                                                href="{{ $dataAlumniUrl }}">
                                                                 <i class="fa-solid fa-users me-2"></i> Data Alumni
                                                             </a>
                                                         </li>
 
                                                         <li class="mt-1">
-                                                            {{-- hanya aktif untuk halaman biodata --}}
                                                             <a class="dropdown-item {{ request()->routeIs('alumni.biodata') ? 'active' : '' }}"
                                                                 href="{{ route('alumni.biodata') }}">
                                                                 <i class="fa-solid fa-id-card me-2"></i> Biodata Alumni
@@ -156,7 +189,7 @@
                                                         <li><hr class="dropdown-divider"></li>
 
                                                         <li>
-                                                            <a class="dropdown-item {{ request()->routeIs('lamaran.*') ? 'active' : '' }}" href="#">
+                                                            <a class="dropdown-item {{ request()->routeIs('lamaran.*') ? 'active' : '' }}" href="{{ url('lamaran') }}">
                                                                 <i class="fa-solid fa-briefcase me-2"></i> Riwayat Lamaran
                                                             </a>
                                                         </li>
@@ -237,10 +270,17 @@
                                                                 <button type="submit" class="dropdown-item text-danger text-center"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Logout</button>
                                                             </form>
                                                         </li>
-
                                                     </ul>
                                                 </li>
                                             @endauth
+                                            {{--  Fitur Register dan saat login akan hilang  --}}
+                                            @guest
+                                                @if (Route::has('register'))
+                                                    <li class="nav-item">
+                                                        <a class="page-scroll" href="{{ route('register') }}">REGISTER</a>
+                                                    </li>
+                                                @endif
+                                            @endguest
                                         </ul>
                                     </div>
                                     <!-- navbar collapse -->
@@ -257,8 +297,12 @@
             <!-- ========================= header-6 end ========================= -->
 
             <!-- ========================= hero-5 start ========================= -->
-            <div class="hero-section hero-style-5 img-bg hero-fill"
-            style="background-image: url('{{ asset('assets/img/hero/hero-5/hero-bg.svg') }}')">
+            <div class="hero-section hero-style-5 img-bg hero-fill" style="min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(135deg, #e8f0fe 0%, #f0f4ff 100%);
+                ">
                 <div class="container">
                     @yield('content')
                 </div>
