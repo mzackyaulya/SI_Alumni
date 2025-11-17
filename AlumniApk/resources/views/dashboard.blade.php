@@ -52,9 +52,9 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
   // ===== Data dari Controller =====
-  const provCounts = @json($provCounts);
-  const maxVal     = Number(@json($maxVal));
-  const cityPoints = @json($cityPoints);
+    const provCounts = @json($provCounts ?? []);
+    const maxVal     = Number(@json($maxVal ?? 0));
+    const cityPoints = @json($cityPoints ?? []);
 
   // ===== Util =====
   function normProv(s){ return String(s||'').toUpperCase().replace(/\s+/g,' ').trim(); }

@@ -244,8 +244,10 @@
                                             {{-- End Menu Perusahaan --}}
 
                                             <li class="nav-item">
-                                                <a class="page-scroll" href="#">Event</a>
+                                                <a class="page-scroll {{ request()->routeIs('events.*') ? 'active' : '' }}"
+                                                    href="{{ route('event.index') }}">Event</a>
                                             </li>
+
                                             {{-- Jika user belum login --}}
                                             @guest
                                                 <li class="nav-item">
@@ -261,7 +263,9 @@
                                                     </a>
                                                     <ul class="dropdown-menu">
                                                         <li>
-                                                            <a class="dropdown-item text-center" href="#"><i class="fa-solid fa-user me-2"></i>Profil</a>
+                                                            <a class="dropdown-item text-center" href="{{ route('profile.show') }}">
+                                                                <i class="fa-solid fa-user me-2"></i> Profil
+                                                            </a>
                                                         </li>
 
                                                         <li>

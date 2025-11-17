@@ -6,6 +6,7 @@ use App\Http\Controllers\LamaranController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LowonganController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\PerusahaanController;
 
 Route::get('/', function () {
@@ -17,7 +18,10 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 Route::get('/alumni/biodata', [AlumniController::class, 'biodata'])->name('alumni.biodata');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile', function () {
+        return view('profile.show');
+    })->name('profile.show');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
@@ -91,4 +95,19 @@ Route::middleware(['auth', 'role:alumni'])->group(function () {
     Route::post('/lamaran', [LamaranController::class, 'store'])
         ->name('lamaran.store');
 });
+
+Route::get('/event', [EventController::class, 'index'])->name('event.index');
+Route::get('/events/{event:slug}', [EventController::class, 'show'])->name('events.show');
+
+Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+    Route::get('/event', [EventController::class, 'adminIndex'])->name('event.index');
+    Route::get('/event/create', [EventController::class, 'create'])->name('event.create');
+    Route::post('/event', [EventController::class, 'store'])->name('event.store');
+    Route::get('/event/{event:slug}/edit', [EventController::class, 'edit'])->name('event.edit');
+    Route::put('/event/{event:slug}', [EventController::class, 'update'])->name('event.update');
+    Route::delete('/event/{event:slug}', [EventController::class, 'destroy'])->name('event.destroy');
+    Route::patch('/event/{event:slug}/toggle', [EventController::class, 'togglePublish'])->name('event.toggle');
+});
+
+
 require __DIR__.'/auth.php';
