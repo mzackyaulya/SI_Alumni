@@ -10,7 +10,33 @@
     Arahkan ke titik kota untuk melihat jumlah lowongan; klik titik untuk membuka katalog terfilter kota.
   </p>
 
+  {{-- PETA --}}
   <div id="map" style="height:520px;border-radius:12px;overflow:hidden" class="mb-4"></div>
+
+  {{-- GRAFIK ALUMNI --}}
+  <div class="row mb-4">
+      <div class="col-lg-7 mb-3">
+          <div class="card shadow-sm h-100">
+              <div class="card-header bg-light">
+                  <strong>Grafik Lulusan per Angkatan</strong>
+              </div>
+              <div class="card-body" style="height:260px;">
+                  <canvas id="chartAngkatan"></canvas>
+              </div>
+          </div>
+      </div>
+
+      <div class="col-lg-5 mb-3">
+          <div class="card shadow-sm h-100">
+              <div class="card-header bg-light">
+                  <strong>Status Alumni (Kerja / Kuliah / Lainnya)</strong>
+              </div>
+              <div class="card-body" style="height:260px;">
+                  <canvas id="chartStatus"></canvas>
+              </div>
+          </div>
+      </div>
+  </div>
 
   {{-- Ringkasan Top Provinsi --}}
   @if(!empty($topProv))
@@ -43,8 +69,21 @@
 {{-- Leaflet CSS --}}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
-  .legend { background:#fff; padding:.5rem .75rem; border-radius:.5rem; box-shadow:0 2px 10px rgba(0,0,0,.07); line-height:1.2; }
-  .legend i { width: 14px; height: 14px; display:inline-block; margin-right:6px; border-radius:3px; border:1px solid rgba(0,0,0,.08); }
+  .legend {
+      background:#fff;
+      padding:.5rem .75rem;
+      border-radius:.5rem;
+      box-shadow:0 2px 10px rgba(0,0,0,.07);
+      line-height:1.2;
+  }
+  .legend i {
+      width: 14px;
+      height: 14px;
+      display:inline-block;
+      margin-right:6px;
+      border-radius:3px;
+      border:1px solid rgba(0,0,0,.08);
+  }
   .btn-icon i { margin-right:.4rem; }
 </style>
 
@@ -52,9 +91,9 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
   // ===== Data dari Controller =====
-    const provCounts = @json($provCounts ?? []);
-    const maxVal     = Number(@json($maxVal ?? 0));
-    const cityPoints = @json($cityPoints ?? []);
+  const provCounts = @json($provCounts ?? []);
+  const maxVal     = Number(@json($maxVal ?? 0));
+  const cityPoints = @json($cityPoints ?? []);
 
   // ===== Util =====
   function normProv(s){ return String(s||'').toUpperCase().replace(/\s+/g,' ').trim(); }
@@ -79,7 +118,6 @@
   }
 
   // ===== BATASI PETA HANYA INDONESIA =====
-  // (kurang-lebih Sabang–Merauke; boleh kamu sesuaikan)
   const indoBounds = L.latLngBounds(
     L.latLng(-11.5, 94.5),   // barat-daya (lat, lng)
     L.latLng(  6.5, 141.5)   // timur-laut
@@ -100,7 +138,7 @@
     bounds: indoBounds
   }).addTo(map);
 
-  // (Opsional) MASK: gelapkan area di luar Indonesia biar fokus
+  // MASK: gelapkan area di luar Indonesia biar fokus
   const worldRing = [[-90,-180],[90,-180],[90,180],[-90,180]];
   const indoRing  = [[-11.5,94.5],[-11.5,141.5],[6.5,141.5],[6.5,94.5]];
   L.polygon([worldRing, indoRing], {
@@ -129,7 +167,6 @@
         }
       }).addTo(map);
 
-      // Fit ke batas Indonesia (bukan dunia) agar tetap terkunci
       map.fitBounds(indoBounds, {padding:[10,10]});
     });
 
@@ -167,7 +204,66 @@
   };
   legend.addTo(map);
 
-  // Toggle layer titik kota
   L.control.layers(null, {'Titik Kota (Lowongan)': cityLayer}, {collapsed:true}).addTo(map);
+</script>
+
+{{-- Chart.js --}}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // ===== DATA UNTUK GRAFIK DARI CONTROLLER =====
+    const angkatanLabels = @json($angkatanLabels ?? []);
+    const angkatanData   = @json($angkatanData ?? []);
+
+    const statusObj    = @json($statusCounts ?? []);
+    const statusLabels = Object.keys(statusObj);
+    const statusData   = Object.values(statusObj);
+
+    // ===== GRAFIK BATANG LULUSAN PER ANGKATAN =====
+    const ctxAngkatan = document.getElementById('chartAngkatan');
+    if (ctxAngkatan && angkatanLabels.length) {
+        new Chart(ctxAngkatan, {
+            type: 'bar',
+            data: {
+                labels: angkatanLabels,
+                datasets: [{
+                    label: 'Jumlah Alumni',
+                    data: angkatanData,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { precision: 0 }
+                    }
+                }
+            }
+        });
+    }
+
+    // ===== GRAFIK DONUT STATUS ALUMNI =====
+    const ctxStatus = document.getElementById('chartStatus');
+    if (ctxStatus && statusLabels.length) {
+        new Chart(ctxStatus, {
+            type: 'doughnut',
+            data: {
+                labels: statusLabels.map(s => s.toUpperCase()),
+                datasets: [{
+                    data: statusData,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    }
 </script>
 @endsection

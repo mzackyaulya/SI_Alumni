@@ -133,9 +133,25 @@
                                             <li class="nav-item">
                                                 <a class="page-scroll {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ url('dashboard') }}">Beranda</a>
                                             </li>
-                                            <li class="nav-item">
-                                                <a class="page-scroll" href="#">Profile Sekolah</a>
+                                            <li class="nav-item dropdown">
+                                                <a class="nav-link dropdown-toggle page-scroll" href="#" id="profileDropdown"
+                                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    Profile Sekolah
+                                                </a>
+
+                                                <ul class="dropdown-menu" aria-labelledby="profileDropdown">
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ url('/sejarah') }}">Sejarah Sekolah</a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ url('/visi-misi') }}">Visi & Misi</a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ url('/struktur-organisasi') }}">Struktur Organisasi</a>
+                                                    </li>
+                                                </ul>
                                             </li>
+
                                             <li class="nav-item">
                                                 <a class="page-scroll {{ request()->routeIs('lowongan') ? 'active' : '' }}" href="{{ url('lowongan') }}">Lowongan Kerja</a>
                                             </li>

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use DB;
+use App\Models\Alumni;
 use App\Models\Lowongan;
 use Illuminate\Http\Request;
 
@@ -9,23 +11,24 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        // Ambil jumlah lowongan per nilai 'lokasi'
-        $rows = Lowongan::select('lokasi', \DB::raw('COUNT(*) as total'))
+        // ================== PETA LOWONGAN ==================
+        $rows = Lowongan::select('lokasi', DB::raw('COUNT(*) as total'))
             ->whereNotNull('lokasi')
             ->groupBy('lokasi')
             ->get();
 
         $mapKotaKeProv = $this->cityToProvinceMap();
 
-        $provCounts = [];   // agregat provinsi
-        $cityCounts = [];   // agregat kota
+        $provCounts = [];
+        $cityCounts = [];
 
         foreach ($rows as $r) {
             $lokasi = trim((string) $r->lokasi);
 
             // --- hitung provinsi ---
             $prov = $this->resolveProvince($lokasi, $mapKotaKeProv)
-                  ?? $this->normalizeProvinceName($lokasi);
+                ?? $this->normalizeProvinceName($lokasi);
+
             if ($prov) {
                 $provCounts[$prov] = ($provCounts[$prov] ?? 0) + (int) $r->total;
             }
@@ -40,8 +43,9 @@ class DashboardController extends Controller
         $maxVal = empty($provCounts) ? 0 : max($provCounts);
 
         // Siapkan titik kota (count + koordinat)
-        $coords = $this->cityCoords(); // 'PALEMBANG' => [-2.97, 104.77], ...
+        $coords     = $this->cityCoords();
         $cityPoints = [];
+
         foreach ($cityCounts as $city => $count) {
             if (isset($coords[$city])) {
                 [$lat, $lng] = $coords[$city];
@@ -54,17 +58,64 @@ class DashboardController extends Controller
             }
         }
 
-        // Top provinsi (opsional buat tabel ringkas)
+        // Top 10 provinsi untuk tabel ringkas
         arsort($provCounts);
         $topProv = array_slice($provCounts, 0, 10, true);
 
+
+        // ================== STATISTIK ALUMNI ==================
+
+        // 1. Grafik batang: jumlah lulusan per angkatan
+        $angkatanStats = Alumni::select('angkatan', DB::raw('COUNT(*) as total'))
+            ->whereNotNull('angkatan')
+            ->groupBy('angkatan')
+            ->orderBy('angkatan')
+            ->get();
+
+        $angkatanLabels = $angkatanStats->pluck('angkatan');
+        $angkatanData   = $angkatanStats->pluck('total');    
+
+        // 2. Status kerja / kuliah / belum bekerja dari kolom 'pekerjaan'
+        $statusCountsRaw = [
+            'kerja'         => 0,
+            'kuliah'        => 0,
+            'belum_bekerja' => 0,
+        ];
+
+        $allAlumni = Alumni::select('pekerjaan')->get();
+
+        foreach ($allAlumni as $a) {
+            $p = strtoupper(trim($a->pekerjaan ?? ''));
+
+            if ($p === '') {
+                // kosong -> belum bekerja
+                $statusCountsRaw['belum_bekerja']++;
+            } elseif (preg_match('~MAHASISWA|KULIAH|STUDENT~', $p)) {
+                // ada kata yang menunjukkan kuliah
+                $statusCountsRaw['kuliah']++;
+            } else {
+                // sisanya dianggap bekerja
+                $statusCountsRaw['kerja']++;
+            }
+        }
+
+        // buang kategori yang 0 biar chart lebih bersih
+        $statusCounts = array_filter($statusCountsRaw, fn ($v) => $v > 0);
+
+
+        // ================== KIRIM KE VIEW ==================
         return view('dashboard', [
-            'provCounts' => $provCounts,
-            'maxVal'     => $maxVal,
-            'cityPoints' => $cityPoints,
-            'topProv'    => $topProv,
+            'provCounts'      => $provCounts,
+            'maxVal'          => $maxVal,
+            'cityPoints'      => $cityPoints,
+            'topProv'         => $topProv,
+
+            'angkatanLabels'  => $angkatanLabels,
+            'angkatanData'    => $angkatanData,
+            'statusCounts'    => $statusCounts,
         ]);
     }
+
 
     /* ======================
      *  Normalisasi Nama Kota

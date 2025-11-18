@@ -13,7 +13,12 @@ Route::get('/', function () {
     return view('/dashboard');
 });
 
+
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+Route::view('/visi-misi', 'visi-misi');
+Route::view('/sejarah', 'sejarah');
+Route::view('/struktur-organisasi', 'struktur-organisasi');
 
 Route::get('/alumni/biodata', [AlumniController::class, 'biodata'])->name('alumni.biodata');
 
@@ -29,6 +34,7 @@ Route::middleware('auth')->group(function () {
 // Start Router Alumni
 
 Route::middleware(['auth','role:admin'])->group(function () {
+    Route::get('/alumni/export', [AlumniController::class, 'export'])->name('alumni.export')->middleware('auth');
     Route::get('/alumni/create',        [AlumniController::class, 'create'])->name('alumni.create');
     Route::post('/alumni',              [AlumniController::class, 'store'])->name('alumni.store');
     Route::get('/alumni/{alumni}/edit', [AlumniController::class, 'edit'])->name('alumni.edit');

@@ -47,26 +47,38 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
         <h4 class="mb-0 fw-bold">Data Alumni</h4>
         <div class="d-flex align-items-center gap-2">
+
+            {{-- Form search --}}
             <form action="{{ route('alumni.index') }}" method="GET" class="m-0">
                 <div class="input-group input-group-sm">
-                <input
-                    type="text"
-                    name="q"
-                    class="form-control"
-                    placeholder="Pencarian..."
-                    value="{{ request('q') }}">
-                <button class="btn btn-outline-primary" type="submit" aria-label="Cari">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </button>
+                    <input
+                        type="text"
+                        name="q"
+                        class="form-control"
+                        placeholder="Pencarian..."
+                        value="{{ request('q') }}">
+                    <button class="btn btn-outline-primary" type="submit" aria-label="Cari">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
                 </div>
             </form>
 
+            {{-- Tombol Export Excel (ikut filter q) --}}
             @if(auth()->user()->role === 'admin')
-                <a href="{{ route('alumni.create') }}" class="btn btn-primary btn-sm">+ Tambah Alumni</a>
+                <a href="{{ route('alumni.export', ['q' => request('q')]) }}"
+                class="btn btn-success btn-sm">
+                    <i class="fa-solid fa-file-excel me-1"></i> Export Excel
+                </a>
+            @endif
+
+            @if(auth()->user()->role === 'admin')
+                <a href="{{ route('alumni.create') }}" class="btn btn-primary btn-sm">
+                    + Tambah Alumni
+                </a>
             @endif
         </div>
-
     </div>
+
     {{-- Alert sukses --}}
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -123,7 +135,7 @@
                                         data-bs-toggle="dropdown"
                                         data-bs-display="static"
                                         data-bs-offset="0,8"
-                                        data-bs-container="body" 
+                                        data-bs-container="body"
                                         data-bs-boundary="viewport"
                                         aria-expanded="false"
                                         style="width:36px;height:36px">

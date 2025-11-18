@@ -4,13 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Alumni;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use App\Exports\AlumniExport;
 
 class AlumniController extends Controller
 {
@@ -41,6 +43,39 @@ class AlumniController extends Controller
 
         return view('alumni.index', compact('alumni', 'q'));
     }
+
+
+    public function export(Request $request)
+    {
+        $q = trim((string) $request->get('q', ''));
+
+        $query = Alumni::with('user')
+            // alumni hanya boleh export datanya sendiri
+            ->when(Auth::check() && Auth::user()->role === 'alumni', function ($query) {
+                $query->where('user_id', Auth::id());
+            })
+            // filter pencarian sama seperti index()
+            ->when($q !== '', function ($query) use ($q) {
+                $query->where(function ($sub) use ($q) {
+                    $sub->where('nama', 'like', "%{$q}%")
+                        ->orWhere('email', 'like', "%{$q}%")
+                        ->orWhere('nis', 'like', "%{$q}%")
+                        ->orWhere('nisn', 'like', "%{$q}%")
+                        ->orWhere('angkatan', 'like', "%{$q}%")
+                        ->orWhere('jurusan', 'like', "%{$q}%")
+                        ->orWhere('pekerjaan', 'like', "%{$q}%");
+                });
+            })
+            ->latest();
+
+        // ambil semua (tanpa paginate)
+        $rows = $query->get();
+
+        $fileName = 'data_alumni_' . now()->format('Ymd_His') . '.xlsx';
+
+        return Excel::download(new AlumniExport($rows), $fileName);
+    }
+
 
     public function create()
     {
