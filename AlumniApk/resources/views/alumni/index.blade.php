@@ -64,14 +64,14 @@
             </form>
 
             {{-- Tombol Export Excel (ikut filter q) --}}
-            @if(auth()->user()->role === 'admin')
+            @if(in_array(auth()->user()->role, ['admin','waka']))
                 <a href="{{ route('alumni.export', ['q' => request('q')]) }}"
                 class="btn btn-success btn-sm">
                     <i class="fa-solid fa-file-excel me-1"></i> Export Excel
                 </a>
             @endif
 
-            @if(auth()->user()->role === 'admin')
+            @if(in_array(auth()->user()->role, ['admin','waka']))
                 <a href="{{ route('alumni.create') }}" class="btn btn-primary btn-sm">
                     + Tambah Alumni
                 </a>

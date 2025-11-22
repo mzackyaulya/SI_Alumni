@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Alumni;
 use App\Models\Lamaran;
 use App\Models\Lowongan;
-use App\Models\Alumni;
+use App\Models\Perusahaan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Storage;
 
 class LamaranController extends Controller
 {
@@ -94,12 +95,33 @@ class LamaranController extends Controller
             ]);
         } catch (QueryException $e) {
             // handle unique (lowongan_id, alumni_id)
-            return redirect()->route('lowongan.show', $lowongan)
+            return redirect()->back()
                 ->with('info', 'Kamu sudah melamar lowongan ini.');
         }
 
         return redirect()->route('lamaran.index')
             ->with('success', 'Lamaran terkirim. Pantau statusnya di menu Riwayat Lamaran.');
+    }
+
+    public function companyIndex()
+    {
+        $user = Auth::user();
+        if (!$user || $user->role !== 'company') {
+            abort(403);
+        }
+
+        // cari perusahaan berdasarkan user_id pemilik akun company ini
+        $perusahaan = Perusahaan::where('user_id', $user->id)->firstOrFail();
+
+        // ambil semua lamaran utk lowongan yang dimiliki perusahaan ini
+        $lamarans = Lamaran::with(['lowongan', 'alumni.user'])
+            ->whereHas('lowongan', function ($q) use ($perusahaan) {
+                $q->where('perusahaan_id', $perusahaan->id);
+            })
+            ->latest()
+            ->paginate(10);
+
+        return view('perusahaan.lamaran.index', compact('lamarans', 'perusahaan'));
     }
 
     /**

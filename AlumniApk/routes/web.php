@@ -9,10 +9,10 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\PerusahaanController;
 
-Route::get('/', function () {
-    return view('/dashboard');
-});
-
+// Route::get('/', function () {
+//     return view('/dashboard');
+// });
+Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -33,7 +33,7 @@ Route::middleware('auth')->group(function () {
 
 // Start Router Alumni
 
-Route::middleware(['auth','role:admin'])->group(function () {
+Route::middleware(['auth','role:admin,waka'])->group(function () {
     Route::get('/alumni/export', [AlumniController::class, 'export'])->name('alumni.export')->middleware('auth');
     Route::get('/alumni/create',        [AlumniController::class, 'create'])->name('alumni.create');
     Route::post('/alumni',              [AlumniController::class, 'store'])->name('alumni.store');
@@ -43,7 +43,7 @@ Route::middleware(['auth','role:admin'])->group(function () {
 });
 
 
-Route::middleware(['auth','role:admin,alumni'])->group(function () {
+Route::middleware(['auth','role:admin,alumni,waka'])->group(function () {
     Route::get('/alumni', [AlumniController::class, 'index'])->name('alumni.index');
     Route::get('/alumni/{alumni}', [AlumniController::class, 'show'])->name('alumni.show');
     Route::get('/alumni/{alumni}/edit', [AlumniController::class, 'edit'])->name('alumni.edit');
@@ -51,6 +51,17 @@ Route::middleware(['auth','role:admin,alumni'])->group(function () {
 });
 
 // End Router Alumni
+
+Route::middleware(['auth', 'role:company'])->group(function () {
+    // daftar semua lamaran yg masuk ke lowongan milik perusahaan ini
+    Route::get('/perusahaan/lamaran', [LamaranController::class, 'companyIndex'])
+        ->name('perusahaan.lamaran.index');
+
+    // update status lamaran (review, interview, accepted, dll)
+    Route::patch('/lamaran/{lamaran}/status', [LamaranController::class, 'updateStatus'])
+        ->name('lamaran.updateStatus');
+});
+
 
 Route::middleware(['auth'])->group(function () {
     // daftar semua biodata perusahaan (grid) — bisa dilihat semua role yang login
@@ -95,12 +106,27 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/lowongan/{lowongan}', [LowonganController::class, 'show'])->name('lowongan.show');
 
 Route::middleware(['auth', 'role:alumni'])->group(function () {
+    // riwayat lamaran
     Route::get('/lamaran', [LamaranController::class, 'index'])->name('lamaran.index');
+
+    // form lamar
     Route::get('/lamaran/create/{lowongan}', [LamaranController::class, 'create'])
-        ->name('lamaran.create');        // singu lar, matches your Blade
-    Route::post('/lamaran', [LamaranController::class, 'store'])
+        ->name('lamaran.create');
+
+    // simpan lamaran (PERHATIKAN: ada {lowongan})
+    Route::post('/lamaran/{lowongan}', [LamaranController::class, 'store'])
         ->name('lamaran.store');
+
+    Route::patch('/lamaran/{lamaran}/withdraw', [LamaranController::class, 'withdraw'])
+        ->name('lamaran.withdraw');
 });
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/lamaran/{lamaran}', [LamaranController::class, 'show'])
+        ->name('lamaran.show');
+});
+
+
 
 Route::get('/event', [EventController::class, 'index'])->name('event.index');
 Route::get('/events/{event:slug}', [EventController::class, 'show'])->name('events.show');
@@ -113,6 +139,31 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::put('/event/{event:slug}', [EventController::class, 'update'])->name('event.update');
     Route::delete('/event/{event:slug}', [EventController::class, 'destroy'])->name('event.destroy');
     Route::patch('/event/{event:slug}/toggle', [EventController::class, 'togglePublish'])->name('event.toggle');
+});
+
+Route::middleware(['auth','role:waka'])->prefix('waka')->name('waka.')->group(function () {
+
+    // Dashboard Waka
+    Route::get('/dashboard', [DashboardController::class, 'wakaDashboard'])
+        ->name('dashboard');
+
+    // Data Alumni
+    Route::get('/alumni', [AlumniController::class, 'index'])->name('alumni.index');
+    Route::get('/alumni/{alumni}/edit', [AlumniController::class, 'edit'])->name('alumni.edit');
+    Route::put('/alumni/{alumni}', [AlumniController::class, 'update'])->name('alumni.update');
+    Route::delete('/alumni/{alumni}', [AlumniController::class, 'destroy'])->name('alumni.destroy');
+    Route::get('/alumni/export/pdf', [AlumniController::class, 'exportPdf'])->name('alumni.export.pdf');
+    Route::get('/alumni/export/excel', [AlumniController::class, 'exportExcel'])->name('alumni.export.excel');
+
+    // Event
+    Route::resource('event', EventController::class);
+
+    // Lowongan kerja
+    Route::resource('lowongan', LowonganController::class);
+
+    // Status alumni (diterima/tidak)
+    Route::get('/status-lamaran', [LamaranController::class, 'statusForWaka'])
+        ->name('status.lamaran');
 });
 
 

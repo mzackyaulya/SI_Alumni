@@ -133,7 +133,15 @@
             </div>
 
             <div class="card-footer bg-white border-0 d-flex justify-content-between align-items-center">
-              <a href="{{ route('lowongan.show',$l) }}" class="btn btn-sm btn-outline-primary">Detail</a>
+                <a href="{{ route('lowongan.show',$l) }}" class="btn btn-sm btn-outline-primary">Detail</a>
+                @auth
+                    @if(auth()->user()->role === 'alumni')
+                        <a href="{{ route('lamaran.create', $l) }}" class="btn btn-primary">
+                        Lamar Sekarang
+                        </a>
+                    @endif
+                @endauth
+
 
               @if($canManage)
                 <div class="dropdown">
