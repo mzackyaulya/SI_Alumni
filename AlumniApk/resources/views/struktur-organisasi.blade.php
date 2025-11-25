@@ -178,9 +178,7 @@
                     <strong>Komite Sekolah</strong>
                 </div>
             </div>
-
         </div>
-
     </div>
 </div>
 @endsection

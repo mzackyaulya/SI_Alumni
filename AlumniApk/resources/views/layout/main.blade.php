@@ -88,6 +88,8 @@
             font-weight: 600;
             box-shadow: none;
             }
+
+
         </style>
 
     </head>
@@ -113,8 +115,7 @@
 
         <!-- ========================= hero-section-wrapper-5 start ========================= -->
         <section id="home" class="hero-section-wrapper-5">
-            <!-- ========================= header-6 start ========================= -->
-            <header class="header header-6 bg-warning">
+            <header class="header header-6" style="background:#20b568;>
                 <div class="navbar-area">
                     <div class="container">
                         <div class="row align-items-center">
@@ -260,15 +261,15 @@
                                                 @else
                                                     {{-- Role lain (alumni, siswa, guru): hanya 1 link ke biodata --}}
                                                     <li class="nav-item">
-                                                    <a class="nav-link {{ request()->routeIs('perusahaan.biodata.index','perusahaan.biodata.show') ? 'active' : '' }}"
-                                                        href="{{ route('perusahaan.biodata.index') }}">
-                                                        Perusahaan
-                                                    </a>
+                                                        <a class="nav-link {{ request()->routeIs('perusahaan.biodata.index','perusahaan.biodata.show') ? 'active' : '' }}"
+                                                            href="{{ route('perusahaan.biodata.index') }}">
+                                                            Perusahaan
+                                                        </a>
                                                     </li>
                                                 @endif
                                             @endauth
                                             {{-- End Menu Perusahaan --}}
-                                            
+
                                             {{-- Start Menu Waka --}}
                                             @auth
                                                 @if(auth()->user()->role === 'waka')
@@ -283,6 +284,7 @@
                                                             <li><a class="dropdown-item" href="{{ route('waka.event.index') }}">Event</a></li>
                                                             <li><a class="dropdown-item" href="{{ route('waka.lowongan.index') }}">Lowongan Kerja</a></li>
                                                             <li><a class="dropdown-item" href="{{ route('waka.status.lamaran') }}">Status Lamaran Alumni</a></li>
+                                                            <li><a class="dropdown-item" href="{{ route('admin.questionnaire.index') }}"><i class="fa-solid fa-clipboard-list me-2"></i> Kelola Kuesioner</a></li>
                                                         </ul>
                                                     </li>
                                                 @endif
@@ -293,6 +295,17 @@
                                                 <a class="page-scroll {{ request()->routeIs('events.*') ? 'active' : '' }}"
                                                     href="{{ route('event.index') }}">Event</a>
                                             </li>
+
+                                            @auth
+                                                @if(in_array(Auth::user()->role, ['admin', 'waka']))
+                                                    <li class="nav-item">
+                                                        <a class="page-scroll {{ request()->routeIs('admin.questionnaire.*') ? 'active' : '' }}"
+                                                        href="{{ route('admin.questionnaire.index') }}">
+                                                        Kuesioner
+                                                        </a>
+                                                    </li>
+                                                @endif
+                                            @endauth
 
                                             {{-- Jika user belum login --}}
                                             @guest
