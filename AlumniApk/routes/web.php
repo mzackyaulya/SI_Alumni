@@ -243,7 +243,7 @@ Route::middleware(['auth'])->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth','role:admin,waka'])->group(function () {
     Route::get('/event', [EventController::class, 'adminIndex'])
         ->name('event.index');
 

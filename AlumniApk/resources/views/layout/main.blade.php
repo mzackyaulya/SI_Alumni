@@ -185,7 +185,7 @@
                                                             $alumniId = optional($user->alumni)->id
                                                                 ?? \App\Models\Alumni::where('user_id', $user->id)->value('id');
 
-                                                            $dataAlumniUrl = ($user && $user->role === 'admin')
+                                                            $dataAlumniUrl = ($user && in_array($user->role, ['admin', 'waka']))
                                                                 ? route('alumni.index')
                                                                 : ($alumniId ? route('alumni.show', $alumniId) : route('alumni.biodata'));
                                                         @endphp
@@ -204,13 +204,15 @@
                                                             </a>
                                                         </li>
 
-                                                        <li><hr class="dropdown-divider"></li>
+                                                        @if(auth()->user()->role === 'alumni')
+                                                            <li><hr class="dropdown-divider"></li>
 
-                                                        <li>
-                                                            <a class="dropdown-item {{ request()->routeIs('lamaran.*') ? 'active' : '' }}" href="{{ url('lamaran') }}">
-                                                                <i class="fa-solid fa-briefcase me-2"></i> Riwayat Lamaran
-                                                            </a>
-                                                        </li>
+                                                            <li>
+                                                                <a class="dropdown-item {{ request()->routeIs('lamaran.*') ? 'active' : '' }}" href="{{ url('lamaran') }}">
+                                                                    <i class="fa-solid fa-briefcase me-2"></i> Riwayat Lamaran
+                                                                </a>
+                                                            </li>
+                                                        @endif
                                                     </ul>
                                                 </li>
                                             @endauth
@@ -270,8 +272,8 @@
                                             @endauth
                                             {{-- End Menu Perusahaan --}}
 
-                                            {{-- Start Menu Waka --}}
-                                            @auth
+                                            {{--  Start Menu Waka --}}
+                                            {{--  @auth
                                                 @if(auth()->user()->role === 'waka')
                                                     <li class="nav-item dropdown">
                                                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
@@ -288,8 +290,8 @@
                                                         </ul>
                                                     </li>
                                                 @endif
-                                            @endauth
-                                            {{-- End Menu Waka --}}
+                                            @endauth  --}}
+                                            {{-- End Menu Waka  --}}
 
                                             <li class="nav-item">
                                                 <a class="page-scroll {{ request()->routeIs('events.*') ? 'active' : '' }}"

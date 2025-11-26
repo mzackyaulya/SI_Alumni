@@ -11,7 +11,7 @@
       <h3 class="fw-bold mb-0">Event Alumni</h3>
 
       @auth
-        @if(auth()->user()->role === 'admin')
+        @if(in_array(auth()->user()->role, ['admin', 'waka']))
           <div class="d-flex gap-2">
             <a href="{{ route('admin.event.create') }}" class="btn btn-primary btn-sm">
               <i class="fa fa-plus me-1"></i>Tambah Event

@@ -181,8 +181,14 @@ class EventController extends Controller
 
     private function mustBeAdmin(): void
     {
-        if (!$this->isAdmin()) abort(403);
+        if (! $this->isAdminOrWaka()) abort(403);
     }
+
+    private function isAdminOrWaka(): bool
+    {
+        return Auth::check() && in_array(Auth::user()->role, ['admin', 'waka']);
+    }
+
 
     private function isAdmin(): bool
     {
