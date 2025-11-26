@@ -272,27 +272,6 @@
                                             @endauth
                                             {{-- End Menu Perusahaan --}}
 
-                                            {{--  Start Menu Waka --}}
-                                            {{--  @auth
-                                                @if(auth()->user()->role === 'waka')
-                                                    <li class="nav-item dropdown">
-                                                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                                                            Waka Sekolah
-                                                        </a>
-
-                                                        <ul class="dropdown-menu">
-                                                            <li><a class="dropdown-item" href="{{ route('waka.dashboard') }}">Dashboard</a></li>
-                                                            <li><a class="dropdown-item" href="{{ route('waka.alumni.index') }}">Data Alumni</a></li>
-                                                            <li><a class="dropdown-item" href="{{ route('waka.event.index') }}">Event</a></li>
-                                                            <li><a class="dropdown-item" href="{{ route('waka.lowongan.index') }}">Lowongan Kerja</a></li>
-                                                            <li><a class="dropdown-item" href="{{ route('waka.status.lamaran') }}">Status Lamaran Alumni</a></li>
-                                                            <li><a class="dropdown-item" href="{{ route('admin.questionnaire.index') }}"><i class="fa-solid fa-clipboard-list me-2"></i> Kelola Kuesioner</a></li>
-                                                        </ul>
-                                                    </li>
-                                                @endif
-                                            @endauth  --}}
-                                            {{-- End Menu Waka  --}}
-
                                             <li class="nav-item">
                                                 <a class="page-scroll {{ request()->routeIs('events.*') ? 'active' : '' }}"
                                                     href="{{ route('event.index') }}">Event</a>
