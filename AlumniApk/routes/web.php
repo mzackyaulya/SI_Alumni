@@ -43,14 +43,6 @@ Route::get('/alumni/biodata', [AlumniController::class, 'biodata'])
     ->name('alumni.biodata')
     ->middleware('questionnaire.completed');
 
-// Lowongan kerja – publik
-Route::get('/lowongan', [LowonganController::class, 'index'])
-    ->name('lowongan.index')
-    ->middleware('questionnaire.completed');
-
-Route::get('/lowongan/{lowongan}', [LowonganController::class, 'show'])
-    ->name('lowongan.show')
-    ->middleware('questionnaire.completed');
 
 // Event – publik
 Route::get('/event', [EventController::class, 'index'])
@@ -100,12 +92,6 @@ Route::middleware(['auth', 'role:admin,waka'])->group(function () {
     Route::post('/alumni', [AlumniController::class, 'store'])
         ->name('alumni.store');
 
-    Route::get('/alumni/{alumni}/edit', [AlumniController::class, 'edit'])
-        ->name('alumni.edit');
-
-    Route::put('/alumni/{alumni}', [AlumniController::class, 'update'])
-        ->name('alumni.update');
-
     Route::delete('/alumni/{alumni}', [AlumniController::class, 'destroy'])
         ->name('alumni.destroy');
 });
@@ -117,6 +103,12 @@ Route::middleware(['auth', 'role:admin,alumni,waka'])->group(function () {
 
     Route::get('/alumni/{alumni}', [AlumniController::class, 'show'])
         ->name('alumni.show')->middleware('questionnaire.completed');
+
+    Route::get('/alumni/{alumni}/edit', [AlumniController::class, 'edit'])
+        ->name('alumni.edit');
+
+    Route::put('/alumni/{alumni}', [AlumniController::class, 'update'])
+        ->name('alumni.update');
 });
 
 
@@ -144,7 +136,7 @@ Route::middleware(['auth'])->group(function () {
         ->name('perusahaan.biodata.show');
 });
 
-// CRUD perusahaan khusus admin
+// ==== KHUSUS ADMIN (buat, hapus, verifikasi) ====
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/perusahaan/create', [PerusahaanController::class, 'create'])
         ->name('perusahaan.create');
@@ -152,39 +144,28 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/perusahaan', [PerusahaanController::class, 'store'])
         ->name('perusahaan.store');
 
-    Route::get('/perusahaan/{perusahaan}/edit', [PerusahaanController::class, 'edit'])
-        ->name('perusahaan.edit');
-
-    Route::put('/perusahaan/{perusahaan}', [PerusahaanController::class, 'update'])
-        ->name('perusahaan.update');
-
     Route::delete('/perusahaan/{perusahaan}', [PerusahaanController::class, 'destroy'])
         ->name('perusahaan.destroy');
 
+    Route::patch('/perusahaan/{perusahaan}/verify', [PerusahaanController::class, 'verifyToggle'])
+        ->name('perusahaan.verify');
+});
+
+// ==== ADMIN + COMPANY: bisa lihat list & detail, dan edit miliknya ====
+Route::middleware(['auth', 'role:admin,company'])->group(function () {
     Route::get('/perusahaan', [PerusahaanController::class, 'index'])
         ->name('perusahaan.index');
 
     Route::get('/perusahaan/{perusahaan}', [PerusahaanController::class, 'show'])
         ->name('perusahaan.show');
 
-    Route::patch('/perusahaan/{perusahaan}/verify', [PerusahaanController::class, 'verifyToggle'])
-        ->name('perusahaan.verify');
-});
-
-// beberapa aksi perusahaan boleh untuk admin & company
-Route::middleware(['auth', 'role:admin,company'])->group(function () {
     Route::get('/perusahaan/{perusahaan}/edit', [PerusahaanController::class, 'edit'])
         ->name('perusahaan.edit');
 
     Route::put('/perusahaan/{perusahaan}', [PerusahaanController::class, 'update'])
         ->name('perusahaan.update');
-
-    Route::get('/perusahaan', [PerusahaanController::class, 'index'])
-        ->name('perusahaan.index');
-
-    Route::patch('/perusahaan/{perusahaan}/verify', [PerusahaanController::class, 'verifyToggle'])
-        ->name('perusahaan.verify');
 });
+
 
 
 /*
@@ -209,6 +190,15 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/lowongan/{lowongan}', [LowonganController::class, 'destroy'])
         ->name('lowongan.destroy');
 });
+
+// Lowongan kerja – publik
+Route::get('/lowongan', [LowonganController::class, 'index'])
+    ->name('lowongan.index')
+    ->middleware('questionnaire.completed');
+
+Route::get('/lowongan/{lowongan}', [LowonganController::class, 'show'])
+    ->name('lowongan.show')
+    ->middleware('questionnaire.completed');
 
 
 /*

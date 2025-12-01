@@ -125,7 +125,7 @@
 
             <div class="d-flex justify-content-between">
               <a href="{{ route('lowongan.index') }}" class="btn btn-light">Kembali</a>
-              <button class="btn btn-primary">Simpan Perubahan</button>
+              <button class="btn btn-primary">Simpan</button>
             </div>
           </form>
         </div>

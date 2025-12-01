@@ -65,13 +65,19 @@ class PerusahaanController extends Controller
         $q        = trim((string) $r->get('q', ''));
         $industri = trim((string) $r->get('industri', ''));
         $verified = (bool) $r->get('verified', false);
+        $user     = $r->user();
 
         $perusahaans = Perusahaan::query()
+            // jika login sebagai company: hanya perusahaan miliknya sendiri
+            ->when($user && $user->role === 'company', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            // kalau admin: tidak dibatasi user_id, jadi bisa lihat semua
             ->when($q !== '', function ($query) use ($q) {
                 $query->where(function ($w) use ($q) {
                     $w->where('nama', 'like', "%{$q}%")
-                      ->orWhere('industri', 'like', "%{$q}%")
-                      ->orWhere('kota', 'like', "%{$q}%");
+                    ->orWhere('industri', 'like', "%{$q}%")
+                    ->orWhere('kota', 'like', "%{$q}%");
                 });
             })
             ->when($industri !== '', fn($x) => $x->where('industri', $industri))
@@ -82,6 +88,7 @@ class PerusahaanController extends Controller
 
         return view('perusahaan.index', compact('perusahaans', 'q', 'industri', 'verified'));
     }
+
 
     public function create()
     {
@@ -163,13 +170,23 @@ class PerusahaanController extends Controller
             ->with('success', 'Perusahaan ditambahkan. Akun company dibuat. Password: ' . $plainPassword);
     }
 
-    public function edit(Perusahaan $perusahaan)
+    public function edit(Perusahaan $perusahaan, Request $request)
     {
+        $user = $request->user();
+        if (! ($user?->role === 'admin' || $user?->id === $perusahaan->user_id)) {
+            abort(403, 'Anda tidak berhak mengedit perusahaan ini.');
+        }
         return view('perusahaan.edit', compact('perusahaan'));
     }
 
     public function update(Request $r, Perusahaan $perusahaan)
     {
+
+        $user = $r->user();
+        if (! ($user?->role === 'admin' || $user?->id === $perusahaan->user_id)) {
+            abort(403, 'Anda tidak berhak mengubah perusahaan ini.');
+        }
+
         $data = $r->validate([
             'nama'      => ['required', 'string', 'max:255'],
             'industri'  => ['nullable', 'string', 'max:100'],

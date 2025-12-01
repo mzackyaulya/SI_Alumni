@@ -57,8 +57,8 @@
                     $selisih = floor(now()->diffInDays($lowongan->deadline, false));
 
                     // Tentukan warna badge
-                    $badgeClass = $selisih < 0 ? 'text-bg-danger'
-                                : ($selisih <= 3 ? 'text-bg-warning' : 'text-bg-light text-dark border');
+                    $badgeClass = $selisih < 0 ? 'text-danger'
+                                : ($selisih <= 3 ? 'text-warning' : 'text-light text-dark border');
 
                     // Tentukan label teks
                     $label = $selisih < 0 ? 'Lewat ' . $lowongan->deadline->format('d M Y')
@@ -67,8 +67,8 @@
                             : 'Tutup ' . $selisih . ' hari lagi'));
                     @endphp
 
-                    <span class="badge {{ $badgeClass }}">
-                    <i class="fa-regular fa-calendar me-1"></i>{{ $label }}
+                    <span class="text-dark">
+                        <i class="fa-regular fa-calendar me-1"></i>{{ $label }}
                     </span>
                 </div>
             @endif
@@ -111,7 +111,7 @@
           @if(!empty($lowongan->tag))
             <div class="mb-3">
               @foreach($lowongan->tag as $tag)
-                <span class="chip chip-primary me-1 mb-1">{{ $tag }}</span>
+                <span class="chip chip-primary text-dark me-1 mb-1">{{ $tag }}</span>
               @endforeach
             </div>
           @endif
